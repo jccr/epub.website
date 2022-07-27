@@ -63,13 +63,16 @@ for i in range(len(book.spine)):
         firstLinearDoc = currentDoc
         print("First linear doc: {} ({})".format(currentDoc.get_href(), id))
 
-    currentDoc.transform(Path(output_path, currentDoc.get_href()), links)
+    currentDoc.transform(
+        Path(output_path, currentDoc.get_href()),
+        links,
+        metadata={"title": get_book_title(book)},
+    )
     print(
         "Transformed {} ({}) [{}]".format(
             currentDoc.get_href(), id, currentDoc.get_title()
         )
     )
-
 
 if firstLinearDoc is None:
     print("No first linear doc found!")
