@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="1; url=${href}">
+<meta http-equiv="refresh" content="0; url=${href}">
 
 <script>
   window.location.href = "${href}"

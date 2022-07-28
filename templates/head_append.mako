@@ -35,6 +35,10 @@ ${async_stylesheet("https://fonts.googleapis.com/css2?family=Material+Symbols+Sh
 ${async_stylesheet("https://cdn.jsdelivr.net/npm/@xz/fonts@1/serve/source-code-pro.min.css")}
 
 <style>
+    :root {
+       --scroll-top-height: 3em; 
+    }
+
     html, body {
         margin: 0;
         padding: 0;
@@ -45,6 +49,7 @@ ${async_stylesheet("https://cdn.jsdelivr.net/npm/@xz/fonts@1/serve/source-code-p
     }
 
     body {
+        margin-top: var(--scroll-top-height);
         background-color: #fff;
         position: relative;
         z-index: 1;

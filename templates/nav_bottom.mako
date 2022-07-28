@@ -9,9 +9,6 @@
     }
 
     .epw-nav-bottom-button {
-        flex: 0.5;
-        min-width: 20vw;
-
         appearance: none;
         border: none;
 
@@ -27,22 +24,14 @@
         padding: 0 1em;
     }
 
-    .epw-nav-bottom-button:first-child {
-        align-items: flex-start;
-        padding-left: max(1em, calc(50vw - 20em));
-    }
-
-    .epw-nav-bottom-button:last-child {
+    .epw-nav-action-next {
         align-items: flex-end;
         padding-right: max(1em, calc(50vw - 20em));
     }
 
-    .epw-nav-action-next:only-child {
-        margin-left: auto;
-    }
-
-    .epw-nav-action-prev:only-child {
+    .epw-nav-action-prev {
         align-items: flex-start;
+        padding-left: max(1em, calc(50vw - 20em));
     }
 
 
@@ -74,6 +63,11 @@
         justify-content: space-between;
     }
 
+    #epw-nav-bottom > * {
+        flex: 1;
+        min-width: 0;
+    }
+
     #epw-nav-bottom a {
         color: hsl(0deg 0% 40%);
         text-decoration: none;
@@ -93,7 +87,7 @@
         text-transform: uppercase;
         font-weight: 300;
         text-decoration: none !important;
-        font-size: 1em;
+        font-size: 0.8em;
     }
     .epw-nav-bottom-button--title {
         white-space: nowrap;
@@ -114,7 +108,7 @@
         %>
         <a class="epw-ui epw-nav-bottom-button epw-nav-action-prev" href="${href}">
             <span class="epw-nav-bottom-button--label">
-                <span class="material-symbols-sharp">
+                <span class="material-symbols-sharp" style="margin-left: -0.3em">
                     chevron_left
                 </span>
                 Previous
@@ -123,6 +117,8 @@
                 ${title}
             </span>
         </a>
+    % else:
+        <div class="epw-nav-action-prev"></div>
     % endif
     % if links["next"]:
         <% 
@@ -132,7 +128,7 @@
         <a class="epw-ui epw-nav-bottom-button epw-nav-action-next" href="${href}">
             <span class="epw-nav-bottom-button--label">
                 Next
-                <span class="material-symbols-sharp">
+                <span class="material-symbols-sharp" style="margin-right: -0.3em">
                     chevron_right
                 </span>
             </span>
@@ -140,5 +136,7 @@
                 ${title}
             </span>
         </a>
+    % else:
+        <div class="epw-nav-action-next"></div>
     % endif
 </nav>

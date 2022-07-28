@@ -1,6 +1,6 @@
 <style>
     :root {
-        --nav-top-height: 3em;
+        --nav-top-height: var(--scroll-top-height);
     }
 
     .epw-nav-button {
@@ -57,7 +57,7 @@
 
     #epw-nav-top {
         display: flex;
-        position: sticky;
+        position: fixed;
         box-sizing: border-box;
         top: 0px;
         left: 0px;
