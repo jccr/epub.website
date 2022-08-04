@@ -49,19 +49,19 @@
 
         .epw-${self.attr.key_}-minus {
             top: 7.7em;
-            left: 34.9em;
+            right: max(19em, calc(50vw - 6.1em));
             background: blue;
         }
 
         .epw-${self.attr.key_}-plus {
             top: 7.7em;
-            left: 43.1em;
+            right: max(11em, calc(50vw - 14.3em));
             background: red;
         }
 
         .epw-${self.attr.key_}-default {
             top: 7.7em;
-            left: 39em;
+            right: max(15em, calc(50vw - 10.2em));
             background: green;
         }
     </style>

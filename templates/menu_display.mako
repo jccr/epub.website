@@ -12,7 +12,7 @@
 
     .epw-popup-menu-display .epw-popup-menu-close {
         position: relative;
-        left: 13.34em;
+        left: 13em;
     }
 
     .epw-popup-menu-display .epw-popup-menu-content {
@@ -36,6 +36,7 @@
         height: 3em;
         width: 3.5em;
         box-sizing: border-box;
+        line-height: 0;
     }
 </style>
 <h3>Font size</h3>

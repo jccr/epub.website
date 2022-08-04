@@ -122,11 +122,11 @@
             format_size
         </span>
     </a>
-    <button class="epw-ui epw-nav-button">
+    <a href="#:search" class="epw-ui epw-nav-button">
         <span class="material-symbols-sharp">
             search
         </span>
-    </button>
+    </a>
 </nav>
 <script defer="">
 //<![CDATA[

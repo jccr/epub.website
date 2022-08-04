@@ -3,6 +3,8 @@
     return f'<link rel="preload" href="{url}" as="style" onload="this.onload=null;this.rel=\'stylesheet\'"/>\
 <noscript><link rel="stylesheet" href="{url}"/></noscript>'
 %>
+## disable javascript on page
+## <meta http-equiv="Content-Security-Policy" content="script-src"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 % if links["current"]:

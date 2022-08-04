@@ -22,10 +22,11 @@
     .epw-popup-menu .epw-popup-menu-content {
         overflow: auto;
         height: 100%;
+        width: 100%;
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
 
-        width: 100%;
         background: #f2f2f2;
         box-shadow: 0 0.2em 1em rgba(0, 0, 0, 0.2);
         clip-path: inset(0px -1em 0px -1em);
