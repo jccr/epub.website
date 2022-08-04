@@ -1,8 +1,10 @@
 from contentdoc import ContentDoc
 from ebooklib import epub
+import ebooklib
 from pathlib import Path
 
 from indexdoc import IndexDoc
+from navdoc import NavDoc
 
 
 def get_book_title(book):
@@ -18,6 +20,8 @@ print("Ingesting book '{}'".format(get_book_title(book)))
 
 print("Processing manifest...")
 for item in book.get_items():
+    if isinstance(item, epub.EpubNav):
+        print(item.get_name(), item.get_type(), item)
     file_name = item.get_name()
     path = Path(output_path, file_name)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -26,29 +30,22 @@ for item in book.get_items():
         print("Copy {} -> {}".format(file_name, path))
 
 
-def contentdoc_from_ref(book, ref, filedir):
-    (id, _) = ref
-    href = book.get_item_with_id(id).get_name()
+def doc_from_item(item, filedir, cls=ContentDoc):
+    href = item.get_name()
     file = Path(filedir, href)
-    return ContentDoc(file, href)
+    return cls(file, href)
 
 
-firstLinearDoc = None
+def contentdoc_from_id(book, id, filedir):
+    item = book.get_item_with_id(id)
+    return doc_from_item(item, filedir)
 
-print("Processing spine...")
-for i in range(len(book.spine)):
-    prev = book.spine[i - 1] if i > 0 else None
-    current = book.spine[i]
-    next = book.spine[i + 1] if i < len(book.spine) - 1 else None
 
-    prevDoc = contentdoc_from_ref(book, prev, output_path) if prev else None
-    currentDoc = contentdoc_from_ref(book, current, output_path)
-    nextDoc = contentdoc_from_ref(book, next, output_path) if next else None
-
-    links = {
+def get_links(current_doc, nextDoc, prevDoc):
+    return {
         "current": {
-            "href": currentDoc.get_href(),
-            "title": currentDoc.get_title(),
+            "href": current_doc.get_href(),
+            "title": current_doc.get_title(),
         },
         "next": {"href": nextDoc.get_href(), "title": nextDoc.get_title()}
         if nextDoc
@@ -58,37 +55,90 @@ for i in range(len(book.spine)):
         else None,
     }
 
-    (id, linear) = current
-    if linear == "yes" and firstLinearDoc is None:
-        firstLinearDoc = currentDoc
-        print("First linear doc: {} ({})".format(currentDoc.get_href(), id))
 
-    currentDoc.transform(
-        Path(output_path, currentDoc.get_href()),
-        links,
+linear_spine = list(map(lambda x: x[0], filter(lambda x: x[1] == "yes", book.spine)))
+first_linear_doc = (
+    contentdoc_from_id(book, linear_spine[0], output_path) if linear_spine else None
+)
+toc = None
+
+print("Processing table of contents from nav doc...")
+for item in book.get_items():
+    if isinstance(item, epub.EpubNav):
+        nav_doc = doc_from_item(item, output_path, cls=NavDoc)
+        toc = {
+            "html": nav_doc.get_toc_html_string(),
+            "href": nav_doc.get_href(),
+        }
+
+print("Processing documents in spine...")
+
+for i in range(len(linear_spine)):
+    prev = linear_spine[i - 1] if i > 0 else None
+    current = linear_spine[i]
+    next = linear_spine[i + 1] if i < len(linear_spine) - 1 else None
+
+    current_doc = contentdoc_from_id(book, current, output_path)
+    prev_doc = contentdoc_from_id(book, prev, output_path) if prev else None
+    next_doc = contentdoc_from_id(book, next, output_path) if next else None
+
+    current_doc.transform(
+        Path(output_path, current_doc.get_href()),
+        links=get_links(current_doc, next_doc, prev_doc),
         metadata={"title": get_book_title(book)},
+        toc=toc,
     )
     print(
         "Transformed {} ({}) [{}]".format(
-            currentDoc.get_href(), id, currentDoc.get_title()
+            current_doc.get_href(), current, current_doc.get_title()
         )
     )
 
-if firstLinearDoc is None:
+if first_linear_doc is None:
     print("No first linear doc found!")
     exit(1)
 
-if firstLinearDoc.get_href() != "index.html":
+if first_linear_doc.get_href() != "index.html":
     with open(Path(output_path, "index.html"), "w") as f:
         f.write(
             IndexDoc(
-                href=firstLinearDoc.get_href(), title=firstLinearDoc.get_title()
+                href=first_linear_doc.get_href(), title=first_linear_doc.get_title()
             ).render()
         )
         print(
             "Generated stub index doc for first linear doc: {}".format(
-                firstLinearDoc.get_href()
+                first_linear_doc.get_href()
             )
         )
 else:
     print("First linear doc is index.html, skipping generation of stub index doc")
+
+print("Processing non-linear documents...")
+
+for item in book.get_items():
+    if item.get_type() != ebooklib.ITEM_DOCUMENT:
+        continue
+    if item.get_id() in linear_spine:
+        continue
+
+    current_doc = doc_from_item(item, output_path)
+    links = {
+        "current": {
+            "href": current_doc.get_href(),
+            "title": current_doc.get_title(),
+        },
+        "next": None,
+        "prev": None,
+    }
+
+    current_doc.transform(
+        Path(output_path, current_doc.get_href()),
+        links=links,
+        metadata={"title": get_book_title(book)},
+        toc=toc,
+    )
+    print(
+        "Transformed {} ({}) [{}]".format(
+            current_doc.get_href(), item.get_id(), current_doc.get_title()
+        )
+    )

@@ -101,6 +101,19 @@
     }
 </style>
 <nav id="epw-nav-bottom">
+    % if not links["prev"] and not links["next"]:
+        <a class="epw-ui epw-nav-bottom-button epw-nav-action-prev" id="epw-nav-action-back" href="../">
+            <span class="epw-nav-bottom-button--label">
+                <span class="material-symbols-sharp" style="margin-left: -0.3em">
+                    chevron_left
+                </span>
+                Previous
+            </span>
+            <span class="epw-nav-bottom-button--title">
+                Go Back
+            </span>
+        </a>
+    % endif
     % if links["prev"]:
         <% 
             href = links["prev"]["href"]
@@ -140,3 +153,13 @@
         <div class="epw-nav-action-next"></div>
     % endif
 </nav>
+<script defer="">
+//<![CDATA[
+    const backButton = document.getElementById("epw-nav-action-back");
+    backButton.setAttribute('href', document.referrer);
+    backButton.addEventListener("click", function(e) {
+        e.preventDefault();
+        history.back();
+    });
+//]]>
+</script>

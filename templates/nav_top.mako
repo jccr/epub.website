@@ -14,6 +14,7 @@
         font-weight: 500;
         color: hsl(0deg 0% 40%);
         background-color: hsl(0deg 0% 90%);
+        text-decoration: none !important;
     }
 
     .epw-nav-button:hover {
@@ -98,11 +99,11 @@
 </style>
 
 <nav id="epw-nav-top">
-    <button class="epw-ui epw-nav-button epw-nav-toc-button">
+    <a href="#:toc" class="epw-ui epw-nav-button epw-nav-toc-button">
         <span class="material-symbols-sharp">
             menu
         </span>
-    </button>
+    </a>
     <span class="epw-ui epw-nav-title epw-nav-title--text">
         <a href="index.html">${metadata["title"]}</a>
     </span>
@@ -114,19 +115,13 @@
             href = links["current"]["href"]
             title = links["current"]["title"] 
         %>
-        <a href="${href}#">${title}<span class="material-symbols-sharp" style="
-            line-height: 0;
-            font-size: 1em;
-            position: relative;
-            top: 2px;
-            left: 4px;
-            ">vertical_align_top</span></a>
+        <a href="${href}#">${title}<span class="material-symbols-sharp epw-link-hint">vertical_align_top</span></a>
     </span>
-    <button class="epw-ui epw-nav-button">
+    <a href="#:display" class="epw-ui epw-nav-button">
         <span class="material-symbols-sharp">
             format_size
         </span>
-    </button>
+    </a>
     <button class="epw-ui epw-nav-button">
         <span class="material-symbols-sharp">
             search
@@ -134,9 +129,9 @@
     </button>
 </nav>
 <script defer="">
-    //<![CDATA[
-    var header = document.getElementById('epw-nav-top');
-    var headroom = new Headroom(header, {
+//<![CDATA[
+    const header = document.getElementById('epw-nav-top');
+    const headroom = new Headroom(header, {
         tolerance: {
             down: 0,
             up: 8
@@ -150,11 +145,46 @@
         },
     });
     headroom.init();
+
+    /* remember if nav is not pinned when navigating within the session */
     if (sessionStorage.getItem('epw-nav-top-pinned') !== 'true') {
         headroom.unpin();
     }
-    setTimeout(function () {
-        console.log(window.scrollY)
-    }, 0);
+
+    /* freeze headroom while browser (not user) scrolls to a target */
+    let pause = false;
+    window.addEventListener('popstate', () => {
+        const hash = window.location.hash;
+        if (!hash.startsWith('#:')) {
+            headroom.freeze()
+            pause = true;
+        }
+    });
+    function debounce(func, timeout = 300) {
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => { func.apply(this, args); }, timeout);
+        };
+    }
+    window.addEventListener('scroll', debounce(() => {
+        if (pause) {
+            pause = false;
+            headroom.unfreeze();
+        }
+    }, 300), { passive: true });
+
+    /* freeze/unfreeze headroom when a menu is open/closed */
+    const freezeConditionallyOnHash = () => {
+        const hash = window.location.hash;
+        if (hash.startsWith('#:') && hash.length > 2) {
+            headroom.pin();
+            headroom.freeze();
+        } else {
+            headroom.unfreeze();
+        }
+    };
+    window.addEventListener('hashchange', freezeConditionallyOnHash);
+    freezeConditionallyOnHash();
 //]]>
 </script>
